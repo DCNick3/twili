@@ -84,7 +84,7 @@ enum class Level {
 
 #define LogMessage(lvl, format, ...) \
 	_log(::twili::log::Level::lvl, __FILE__, __LINE__,	\
-			 format, ##__VA_ARGS__);
+			 format, ##__VA_ARGS__)
 
 class Logger {
  public:

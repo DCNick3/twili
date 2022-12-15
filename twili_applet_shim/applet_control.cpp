@@ -138,12 +138,23 @@ void ControlMode(ipc::client::Object &iappletshim) {
 	ResultCode::AssertOk(ipc_convert_to_domain(&iasaps.object, &domain));
 
 	ipc::client::Object ilap;
-	ResultCode::AssertOk(
-		iasaps.SendSyncRequest<200>( // OpenLibraryAppletProxyOld
+    do {
+        ipc::client::Object ilap_tmp;
+    	auto rc = iasaps.SendSyncRequest<200>( // OpenLibraryAppletProxyOld
 			ipc::InPid(),
 			ipc::InRaw<uint64_t>(0),
 			ipc::InHandle<handle_t, ipc::copy>(0xffff8001),
-			ipc::OutObject(ilap)));
+			ipc::OutObject(ilap));
+        if (!rc) {
+            auto error = rc.error();
+            if (error.code == 0x19280) { // "BUSY"; see https://switchbrew.org/wiki/Applet_Manager_services#OpenApplicationProxy
+                svcSleepThread(10000000);
+                continue;
+            }
+            throw ResultError(error);
+        }
+        ilap = std::move(ilap_tmp);
+    } while (false);
 
 	ipc::client::Object ilac;
 	ResultCode::AssertOk(

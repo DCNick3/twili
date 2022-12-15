@@ -53,6 +53,7 @@
 
 #include "util.hpp"
 #include "err.hpp"
+#include "higu_debug.hpp"
 
 namespace twili {
 namespace twib {
@@ -566,6 +567,8 @@ int main(int argc, char *argv[]) {
 	launch->add_set_ignore_case("storage", launch_storage, {"host", "gamecard", "gc", "nand-system", "system", "nand-user", "user", "sdcard", "sd"}, "Storage for title")->required();
 	launch->add_option("launch-flags", launch_flags, "Flags for launch");
 
+    CLI::App *higu_debug = app.add_subcommand("higu-debug", "Launch higurashi debug stuff");
+
 	FSCommands sd_commands(app, "sd", "Perform operations on target SD card", "sd");
 	FSCommands nand_user_commands(app, "nu", "Perform operations on target NAND user filesystem", "nand_user");
 	FSCommands nand_system_commands(app, "ns", "Perform operations on target NAND system filesystem", "nand_system");
@@ -861,6 +864,10 @@ int main(int argc, char *argv[]) {
 	if(nand_system_commands.subcommand->parsed()) {
 		return nand_system_commands.Run(itdi);
 	}
+
+    if(higu_debug->parsed()) {
+        return run_higu_debug(itdi);
+    }
 
 	return 0;
 }
